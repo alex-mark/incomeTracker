@@ -36,11 +36,6 @@ export default function App() {
     },
   ]);
 
-  const getRelativeDate = (date) =>
-    DateTime.fromJSDate(date).toRelativeCalendar({
-      unit: "days",
-    });
-
   useEffect(() => {
     const incomeByDay = gigs.reduce((acc, gig) => {
       const date = gig.timestamp.toISOString().substring(0, 10);
@@ -61,7 +56,6 @@ export default function App() {
         unit: "days",
       })
     );
-
     setLabels(lblsRelative);
   }, [gigs]);
 
