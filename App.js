@@ -41,7 +41,7 @@ export default function App() {
       const date = gig.timestamp.toISOString().substring(0, 10);
       return {
         ...acc,
-        [date]: (acc[date] || 0) + gig.amount,
+        [date]: (acc[date] || 0) + Number(gig.amount),
       };
     }, {});
 
