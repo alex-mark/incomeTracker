@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,7 +13,8 @@ import GlobalStyles from "./GlobalStyles";
 
 export default function App() {
   const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState("");
+  const [total, setTotal] = useState(0);
   const [gigs, setGigs] = useState([
     {
       description: "Freelance job with Qazi",
@@ -21,7 +22,11 @@ export default function App() {
     },
   ]);
 
-  const addGig = () =>
+  useEffect(() => {
+    setTotal(gigs.reduce((total, gig) => total + Number(gig.amount), 0));
+  }, [gigs]);
+
+  const addGig = () => {
     setGigs([
       ...gigs,
       {
@@ -30,11 +35,18 @@ export default function App() {
       },
     ]);
 
+    setDescription("");
+    setAmount("");
+  };
+
   return (
     <SafeAreaView style={GlobalStyles.androidSafeArea}>
       <View>
-        <Text style={styles.titleText}>React Native App for Freelance</Text>
+        <Text style={styles.titleText}>
+          React Native App for Freelance 🚀🚀🚀
+        </Text>
       </View>
+      <Text>Total Income: ${total}</Text>
       <TextInput
         style={styles.gigInput}
         value={description}
@@ -45,10 +57,14 @@ export default function App() {
         style={styles.gigInput}
         value={amount}
         placeholder="Enter the amount you made in $ (USD)"
-        onChangeText={(text) => setInput(text)}
+        onChangeText={(text) => setAmount(text)}
         keyboardType="number-pad"
       />
-      <Button title="Add Gig 🚀" onPress={addGig} />
+      <Button
+        disabled={!description && !amount}
+        title="Add Gig 🚀"
+        onPress={addGig}
+      />
     </SafeAreaView>
   );
 }
@@ -56,6 +72,7 @@ export default function App() {
 const styles = StyleSheet.create({
   gigInput: {
     margin: 20,
+    padding: 5,
     height: 40,
     borderColor: "red",
     borderWidth: 1,
