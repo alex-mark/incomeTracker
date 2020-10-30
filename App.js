@@ -7,6 +7,7 @@ import {
   TextInput,
   Button,
 } from "react-native";
+import { DateTime } from "luxon";
 import GlobalStyles from "./GlobalStyles";
 import Graph from "./components/Graph";
 
@@ -26,34 +27,42 @@ export default function App() {
     {
       description: "Small Project",
       amount: 340,
-      timestamp: new Date(2020, 10, 29),
+      timestamp: new Date(2020, 9, 29),
     },
     {
       description: "React gig",
       amount: 850,
-      timestamp: new Date(2020, 11, 1),
+      timestamp: new Date(2020, 10, 1),
     },
   ]);
 
-  useEffect(() => {
-    let data = {};
-    gigs.map((gig) => {
-      const date = gig.timestamp.toDateString();
-      if (!(date in data)) {
-        data[date] = gig.amount;
-      } else {
-        data[date] += gig.amount;
-      }
+  const getRelativeDate = (date) =>
+    DateTime.fromJSDate(date).toRelativeCalendar({
+      unit: "days",
     });
 
-    console.log("DATA", data);
+  useEffect(() => {
+    const incomeByDay = gigs.reduce((acc, gig) => {
+      const date = gig.timestamp.toISOString().substring(0, 10);
+      return {
+        ...acc,
+        [date]: (acc[date] || 0) + gig.amount,
+      };
+    }, {});
 
-    setLabels(Object.keys(data).sort());
-    setDataPoints(
-      Object.keys(data)
-        .sort()
-        .map((key) => data[key])
+    console.log("DATA", incomeByDay);
+
+    const lbls = Object.keys(incomeByDay).sort();
+
+    setDataPoints(lbls.map((key) => incomeByDay[key]));
+
+    const lblsRelative = lbls.map((date) =>
+      DateTime.fromISO(date).toRelativeCalendar({
+        unit: "days",
+      })
     );
+
+    setLabels(lblsRelative);
   }, [gigs]);
 
   console.log("LABELS", labels);
@@ -84,6 +93,9 @@ export default function App() {
           React Native App for Freelance 🚀🚀🚀
         </Text>
       </View>
+
+      <Graph labels={labels} dataPoints={dataPoints} />
+
       <Text>Total Income: ${total}</Text>
       <TextInput
         style={styles.gigInput}
@@ -110,8 +122,6 @@ export default function App() {
           <Text>${gig.amount}</Text>
         </>
       ))}
-
-      <Graph labels={labels} dataPoints={dataPoints} />
     </SafeAreaView>
   );
 }
